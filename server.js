@@ -5,8 +5,12 @@ const fs = require('fs');
 
 const app = express();
 app.use(express.json());
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
+
 app.use(express.static(path.join(__dirname, 'frontend')));
-app.use(express.static(path.join(__dirname, '.')));
 
 // Google AI API Key
 const GOOGLE_AI_KEY = 'AlzaSyCIRqNclsNTnFv0WQz0PDLj0bti8WVJH4';
@@ -54,10 +58,6 @@ app.post('/api/login', async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Server error: ' + error.message });
     }
-});
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/index.html'));
 });
 
 // Save score endpoint
