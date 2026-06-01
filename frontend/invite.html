@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invite Friends</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        h1 { color: #333; text-align: center; margin-bottom: 20px; }
+        .invite-box { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .input-group { margin: 15px 0; }
+        .input-group label { display: block; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .input-group input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+        .send-btn { width: 100%; padding: 12px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        .send-btn:hover { background: #0056b3; }
+        .message { font-size: 16px; color: #666; margin: 20px 0; line-height: 1.6; }
+        .success { color: #28a745; font-weight: bold; margin-top: 10px; }
+        .error { color: #dc3545; font-weight: bold; margin-top: 10px; }
+        .requests-box { background: #d4edda; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .requests-box h3 { margin: 0 0 15px 0; color: #155724; }
+        .sent-box { background: #fff3cd; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .sent-box h3 { margin: 0 0 15px 0; color: #856404; }
+        .request-item { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .request-user { font-weight: bold; color: #333; font-size: 16px; }
+        .request-status { color: #666; font-size: 14px; }
+        .action-btn { padding: 8px 15px; border: none; cursor: pointer; border-radius: 5px; font-size: 14px; font-weight: bold; margin: 0 5px; }
+        .accept-btn { background: #28a745; color: white; }
+        .accept-btn:hover { background: #218838; }
+        .reject-btn { background: #dc3545; color: white; }
+        .reject-btn:hover { background: #c82333; }
+        .back-btn { position: fixed; right: 20px; top: 20px; padding: 10px 20px; background: #f8f9fa; color: #333; border: 2px solid #ddd; cursor: pointer; border-radius: 5px; font-weight: bold; z-index: 1000; }
+        .back-btn:hover { background: #e9ecef; }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.history.back()">← Back</button>
+    <div class="container">
+        <h1>👥 Invite Friends</h1>
+        
+        <div class="requests-box">
+            <h3>📬 Received Requests</h3>
+            <div id="received-list">
+                <p style="color: #666; text-align: center;">No received requests</p>
+            </div>
+        </div>
+        
+        <div class="invite-box">
+            <h3 style="margin: 0 0 15px 0; color: #333;">Send Invite</h3>
+            <div class="input-group">
+                <label for="friend-username">Friend's Username</label>
+                <input type="text" id="friend-username" placeholder="Enter username">
+            </div>
+            <button class="send-btn" onclick="sendInvite()">📤 Send Invite</button>
+            <div id="invite-message"></div>
+        </div>
+        
+        <div class="sent-box">
+            <h3>📤 Sent Invites</h3>
+            <div id="sent-list">
+                <p style="color: #666; text-align: center;">No sent invites</p>
+            </div>
+        </div>
+        
+
+    </div>
+
+    <script src="invite.js"></script>
+</body>
+</html>

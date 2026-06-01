@@ -1,0 +1,19 @@
+{
+  "name": "gaming-maths",
+  "version": "1.0.0",
+  "description": "Student Math Learning Portal with AI Helper",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["math", "education", "ai", "learning"],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "bcryptjs": "^2.4.3"
+  }
+}

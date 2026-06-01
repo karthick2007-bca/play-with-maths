@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoreboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        h1 { color: #333; text-align: center; margin-bottom: 30px; }
+        .leaderboard { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .leaderboard h2 { margin: 0 0 15px 0; color: #333; font-size: 22px; }
+        .player { display: flex; justify-content: space-between; align-items: center; padding: 15px; margin: 10px 0; background: white; border-radius: 8px; border-left: 5px solid #ddd; }
+        .player.rank-1 { border-left-color: #ffd700; background: #fffbea; }
+        .player.rank-2 { border-left-color: #c0c0c0; background: #f5f5f5; }
+        .player.rank-3 { border-left-color: #cd7f32; background: #fff5e6; }
+        .player.current { background: #e7f3ff; border: 2px solid #007bff; }
+        .rank { font-size: 24px; font-weight: bold; color: #333; width: 40px; }
+        .player-info { flex: 1; margin: 0 15px; }
+        .player-name { font-size: 18px; font-weight: bold; color: #333; }
+        .player-scores { font-size: 14px; color: #666; margin-top: 5px; }
+        .total-score { font-size: 20px; font-weight: bold; color: #007bff; }
+        .score-card { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 15px 0; border-left: 5px solid #ddd; }
+        .score-card.easy { border-left-color: #28a745; }
+        .score-card.medium { border-left-color: #ffc107; }
+        .score-card.hard { border-left-color: #dc3545; }
+        .score-card.total { border-left-color: #007bff; background: #e7f3ff; }
+        .score-card h2 { margin: 0 0 10px 0; font-size: 20px; color: #333; }
+        .score-value { font-size: 36px; font-weight: bold; color: #333; }
+        .score-label { font-size: 14px; color: #666; margin-top: 5px; }
+        .reset-btn { width: 100%; padding: 12px; background: #dc3545; color: white; border: none; cursor: pointer; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 20px; }
+        .reset-btn:hover { background: #c82333; }
+        .back-btn { position: fixed; right: 20px; top: 20px; padding: 10px 20px; background: #f8f9fa; color: #333; border: 2px solid #ddd; cursor: pointer; border-radius: 5px; font-weight: bold; z-index: 1000; }
+        .back-btn:hover { background: #e9ecef; }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.history.back()">← Back</button>
+    <div class="container">
+        <h1>📊 Scoreboard</h1>
+        
+        <div class="leaderboard">
+            <h2>🏆 Leaderboard - Top Players</h2>
+            <div id="leaderboard-list"></div>
+        </div>
+        
+        <h2 style="margin-top: 30px; color: #333;">Your Scores</h2>
+        
+        <div class="score-card easy">
+            <h2>🟢 Easy Level</h2>
+            <div class="score-value" id="easy-score">0</div>
+            <div class="score-label">Points earned</div>
+        </div>
+        
+        <div class="score-card medium">
+            <h2>🟡 Medium Level</h2>
+            <div class="score-value" id="medium-score">0</div>
+            <div class="score-label">Points earned</div>
+        </div>
+        
+        <div class="score-card hard">
+            <h2>🔴 Hard Level</h2>
+            <div class="score-value" id="hard-score">0</div>
+            <div class="score-label">Points earned</div>
+        </div>
+        
+        <div class="score-card total">
+            <h2>🏆 Total Score</h2>
+            <div class="score-value" id="total-score">0</div>
+            <div class="score-label">Combined points</div>
+        </div>
+        
+        <button class="reset-btn" onclick="resetScores()">🔄 Reset All Scores</button>
+    </div>
+
+    <script>
+        function updateScores() {
+            const easy = parseInt(localStorage.getItem('easyScore') || 0);
+            const medium = parseInt(localStorage.getItem('mediumScore') || 0);
+            const hard = parseInt(localStorage.getItem('hardScore') || 0);
+            
+            document.getElementById('easy-score').textContent = easy;
+            document.getElementById('medium-score').textContent = medium;
+            document.getElementById('hard-score').textContent = hard;
+            document.getElementById('total-score').textContent = easy + medium + hard;
+        }
+        
+        function updateLeaderboard() {
+            const currentUser = localStorage.getItem('currentUser') || 'You';
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            
+            // Create leaderboard data
+            const leaderboard = [];
+            
+            // Add current user
+            const easy = parseInt(localStorage.getItem('easyScore') || 0);
+            const medium = parseInt(localStorage.getItem('mediumScore') || 0);
+            const hard = parseInt(localStorage.getItem('hardScore') || 0);
+            const total = easy + medium + hard;
+            
+            leaderboard.push({
+                name: currentUser,
+                easy: easy,
+                medium: medium,
+                hard: hard,
+                total: total,
+                isCurrent: true
+            });
+            
+            // Add sample friends (you can replace with real data)
+            const friends = [
+                { name: 'Alex', easy: 45, medium: 80, hard: 120 },
+                { name: 'Sarah', easy: 60, medium: 95, hard: 150 },
+                { name: 'Mike', easy: 38, medium: 70, hard: 90 },
+                { name: 'Emma', easy: 52, medium: 85, hard: 130 }
+            ];
+            
+            friends.forEach(friend => {
+                leaderboard.push({
+                    name: friend.name,
+                    easy: friend.easy,
+                    medium: friend.medium,
+                    hard: friend.hard,
+                    total: friend.easy + friend.medium + friend.hard,
+                    isCurrent: false
+                });
+            });
+            
+            // Sort by total score
+            leaderboard.sort((a, b) => b.total - a.total);
+            
+            // Display leaderboard
+            const listEl = document.getElementById('leaderboard-list');
+            listEl.innerHTML = '';
+            
+            leaderboard.forEach((player, index) => {
+                const rank = index + 1;
+                const rankClass = rank <= 3 ? `rank-${rank}` : '';
+                const currentClass = player.isCurrent ? 'current' : '';
+                
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+                
+                const playerEl = document.createElement('div');
+                playerEl.className = `player ${rankClass} ${currentClass}`;
+                playerEl.innerHTML = `
+                    <div class="rank">${medal}</div>
+                    <div class="player-info">
+                        <div class="player-name">${player.name}${player.isCurrent ? ' (You)' : ''}</div>
+                        <div class="player-scores">Easy: ${player.easy} | Medium: ${player.medium} | Hard: ${player.hard}</div>
+                    </div>
+                    <div class="total-score">${player.total}</div>
+                `;
+                listEl.appendChild(playerEl);
+            });
+        }
+        
+        function resetScores() {
+            if (confirm('Are you sure you want to reset all scores?')) {
+                localStorage.setItem('easyScore', 0);
+                localStorage.setItem('mediumScore', 0);
+                localStorage.setItem('hardScore', 0);
+                updateScores();
+                updateLeaderboard();
+            }
+        }
+        
+        updateScores();
+        updateLeaderboard();
+        setInterval(() => {
+            updateScores();
+            updateLeaderboard();
+        }, 2000);
+    </script>
+</body>
+</html>

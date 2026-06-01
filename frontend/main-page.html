@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Learning - Main Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .sidebar { position: fixed; left: -250px; top: 0; width: 250px; height: 100%; background: white; box-shadow: 2px 0 10px rgba(0,0,0,0.3); transition: 0.3s; z-index: 1000; overflow-y: auto; }
+        .sidebar.open { left: 0; }
+        .toggle-btn { position: fixed; left: 10px; top: 10px; background: white; border: none; font-size: 20px; padding: 10px 15px; cursor: pointer; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 1001; }
+        .back-btn { position: fixed; right: 20px; top: 20px; padding: 10px 20px; background: #f8f9fa; color: #333; border: 2px solid #ddd; cursor: pointer; border-radius: 5px; font-weight: bold; z-index: 1001; }
+        .back-btn:hover { background: #e9ecef; }
+        .sidebar-content { padding: 20px; }
+        .competition { background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .competition h3 { margin: 0 0 10px 0; color: #856404; cursor: pointer; }
+        .competition h3:hover { color: #664d03; }
+        .scoreboard { background: #e7f3ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .scoreboard h3 { margin: 0 0 10px 0; color: #0056b3; cursor: pointer; }
+        .scoreboard h3:hover { color: #003d82; }
+        .invite { background: #d4edda; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .invite h3 { margin: 0 0 10px 0; color: #155724; cursor: pointer; }
+        .invite h3:hover { color: #0c3d1a; }
+        .ai-chat { width: 600px; padding: 30px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .ai-chat h2 { color: #333; text-align: center; margin-bottom: 20px; }
+        #chat-box { height: 400px; overflow-y: auto; border: 2px solid #ddd; padding: 15px; margin: 15px 0; background: #f9f9f9; border-radius: 10px; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 8px; }
+        .user { background: #e3f2fd; text-align: right; }
+        .ai { background: #f1f8e9; white-space: pre-line; }
+        .answer-input { width: 60px; padding: 5px; border: 2px solid #007bff; border-radius: 5px; font-size: 16px; text-align: center; margin: 0 5px; }
+        .check-btn { padding: 8px 15px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 5px; font-size: 14px; margin-left: 10px; }
+        .check-btn:hover { background: #218838; }
+        .input-area { display: flex; gap: 10px; margin-top: 15px; }
+        input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
+        button { padding: 12px 20px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 8px; font-size: 16px; }
+        button:hover { background: #0056b3; }
+        .answer-check { margin: 15px 0; padding: 15px; background: #e7f3ff; border-radius: 8px; border: 2px solid #007bff; }
+        .answer-check input { width: 100px; padding: 8px; border: 2px solid #007bff; border-radius: 5px; font-size: 18px; text-align: center; }
+        .answer-check button { padding: 8px 20px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; font-size: 16px; margin-left: 10px; }
+        .answer-check button:hover { background: #0056b3; }
+        .hint-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border: 2px solid #6c757d; }
+        .hint-section h4 { margin: 0 0 10px 0; color: #495057; }
+        .hint-section.locked { opacity: 0.5; pointer-events: none; }
+        .timer-display { text-align: center; font-size: 20px; font-weight: bold; color: #dc3545; margin: 15px 0; padding: 10px; background: #fff3cd; border-radius: 8px; }
+        .content-frame { width: 100%; height: 500px; border: 2px solid #ddd; border-radius: 10px; display: none; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <button class="toggle-btn" onclick="toggleSidebar()">&gt;&gt;&gt;</button>
+    <button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-content">
+            <div class="competition">
+                <h3 onclick="loadCompetition()">🏆 Competition ▼</h3>
+            </div>
+            <div class="scoreboard">
+                <h3 onclick="loadScoreboard()">📊 Scoreboard ▼</h3>
+            </div>
+            <div class="invite">
+                <h3 onclick="loadInvite()">👥 Invite Friends ▼</h3>
+            </div>
+        </div>
+    </div>
+    <div class="ai-chat">
+        <h2>🤖 AI Math Helper</h2>
+        <iframe id="content-frame" class="content-frame"></iframe>
+        <div id="chat-box"></div>
+        <div class="input-area">
+            <input type="text" id="question" placeholder="Ask a math question..." onkeypress="if(event.key==='Enter') askAI()">
+            <button onclick="askAI()">Send</button>
+        </div>
+        <div class="input-area">
+            <button onclick="showNextHint()" style="background: #ffc107;">💡 Show Next Hint</button>
+        </div>
+        <div class="timer-display" id="timer-display">⏱️ Time: 30s</div>
+    </div>
+
+    <script>
+        let lastQuestion = '';
+        let currentHint = 1;
+        let hintTimer = null;
+        let countdownTimer = null;
+        let timeLeft = 30;
+        let questionCount = 0;
+
+        async function askAI() {
+            const question = document.getElementById('question').value;
+            if (!question) return;
+
+            lastQuestion = question;
+            currentHint = 1;
+            timeLeft = 30;
+            questionCount++;
+            
+            if (hintTimer) clearTimeout(hintTimer);
+            if (countdownTimer) clearInterval(countdownTimer);
+            
+            addMessage(question, 'user');
+            document.getElementById('question').value = '';
+            
+            showAnswerCheck(question, questionCount);
+            showAllHints(question, questionCount);
+            startHintTimer();
+            startCountdown();
+        }
+
+        function startCountdown() {
+            const timerEl = document.getElementById('timer-display');
+            timerEl.textContent = '⏱️ Time: ' + timeLeft + 's';
+            
+            if (countdownTimer) clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = '⏱️ Time: ' + timeLeft + 's';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    timeLeft = 30;
+                    timerEl.textContent = '⏱️ Time: 30s';
+                }
+            }, 1000);
+        }
+
+        function startHintTimer() {
+            if (hintTimer) clearTimeout(hintTimer);
+            hintTimer = setTimeout(() => {
+                if (currentHint < 3) {
+                    currentHint++;
+                    unlockHint(currentHint);
+                    timeLeft = 30;
+                    startHintTimer();
+                }
+            }, 30000);
+        }
+
+        function showAnswerCheck(question, qNum) {
+            const answer = getCorrectAnswer(question);
+            if (!answer) return;
+            
+            setTimeout(() => {
+                const msg = document.createElement('div');
+                msg.className = 'message ai';
+                msg.innerHTML = `<div class="answer-check">📝 Try to solve it: <input type="number" id="final-answer-${qNum}" placeholder="Your answer"> <button onclick="checkFinalAnswer(${answer}, ${qNum})">Check</button></div>`;
+                document.getElementById('chat-box').appendChild(msg);
+                document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+            }, 100);
+        }
+
+        function showAllHints(question, qNum) {
+            setTimeout(() => {
+                const msg = document.createElement('div');
+                msg.className = 'message ai';
+                msg.innerHTML = '<div class="hint-section" id="hint-' + qNum + '-1"><h4>💡 Hint 1</h4>' + generateHint(question, 1) + '</div>' +
+                                '<div class="hint-section locked" id="hint-' + qNum + '-2" style="display: none;"><h4>💡 Hint 2</h4>' + generateHint(question, 2) + '</div>' +
+                                '<div class="hint-section locked" id="hint-' + qNum + '-3" style="display: none;"><h4>💡 Hint 3</h4>' + generateHint(question, 3) + '</div>';
+                document.getElementById('chat-box').appendChild(msg);
+                document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+            }, 200);
+        }
+
+        function unlockHint(hintNum) {
+            const hint = document.getElementById('hint-' + questionCount + '-' + hintNum);
+            if (hint) {
+                hint.classList.remove('locked');
+                hint.style.display = 'block';
+                hint.style.opacity = '1';
+                hint.style.pointerEvents = 'auto';
+            }
+        }
+
+        function showNextHint() {
+            if (currentHint < 3) {
+                currentHint++;
+                unlockHint(currentHint);
+                timeLeft = 30;
+                if (countdownTimer) clearInterval(countdownTimer);
+                startCountdown();
+                if (hintTimer) clearTimeout(hintTimer);
+                startHintTimer();
+            }
+        }
+
+        function checkFinalAnswer(correct, qNum) {
+            const userAnswer = parseInt(document.getElementById('final-answer-' + qNum).value);
+            if (countdownTimer) clearInterval(countdownTimer);
+            if (hintTimer) clearTimeout(hintTimer);
+            if (userAnswer === correct) {
+                addMessage('✅ Perfect! Your answer is correct!', 'ai');
+            } else {
+                addMessage('❌ Not quite right. Keep trying or use hints!', 'ai');
+            }
+        }
+
+        function getCorrectAnswer(question) {
+            const q = question.toLowerCase().replace(/\s+/g, '');
+            
+            // Fractions: 1/2 + 3/4
+            const fracMatch = q.match(/(\d+)\/(\d+)([+\-*\/])(\d+)\/(\d+)/);
+            if (fracMatch) {
+                const n1 = parseInt(fracMatch[1]), d1 = parseInt(fracMatch[2]);
+                const op = fracMatch[3];
+                const n2 = parseInt(fracMatch[4]), d2 = parseInt(fracMatch[5]);
+                
+                if (op === '+') {
+                    const num = n1 * d2 + n2 * d1;
+                    const den = d1 * d2;
+                    return `${num}/${den}`;
+                } else if (op === '-') {
+                    const num = n1 * d2 - n2 * d1;
+                    const den = d1 * d2;
+                    return `${num}/${den}`;
+                }
+            }
+            
+            // Algebra: 2x + 5 = 15 (solve for x)
+            const algebraMatch = q.match(/(\d+)x([+\-])(\d+)=(\d+)/);
+            if (algebraMatch) {
+                const coef = parseInt(algebraMatch[1]);
+                const op = algebraMatch[2];
+                const const1 = parseInt(algebraMatch[3]);
+                const result = parseInt(algebraMatch[4]);
+                
+                if (op === '+') {
+                    return (result - const1) / coef;
+                } else {
+                    return (result + const1) / coef;
+                }
+            }
+            
+            const addMatch = q.match(/(\d+)\+(\d+)/);
+            const subMatch = q.match(/(\d+)-(\d+)/);
+            const mulMatch = q.match(/(\d+)[x*](\d+)/);
+            const divMatch = q.match(/(\d+)[/÷](\d+)/);
+            
+            if (addMatch) return parseInt(addMatch[1]) + parseInt(addMatch[2]);
+            if (subMatch) return parseInt(subMatch[1]) - parseInt(subMatch[2]);
+            if (mulMatch) return parseInt(mulMatch[1]) * parseInt(mulMatch[2]);
+            if (divMatch) return Math.floor(parseInt(divMatch[1]) / parseInt(divMatch[2]));
+            return null;
+        }
+
+        function generateHint(question, level) {
+            const q = question.toLowerCase().replace(/\s+/g, '');
+            
+            // Fractions
+            const fracMatch = q.match(/(\d+)\/(\d+)([+\-*\/])(\d+)\/(\d+)/);
+            if (fracMatch) {
+                const n1 = parseInt(fracMatch[1]), d1 = parseInt(fracMatch[2]);
+                const op = fracMatch[3];
+                const n2 = parseInt(fracMatch[4]), d2 = parseInt(fracMatch[5]);
+                
+                if (op === '+' || op === '-') {
+                    if (level === 1) return `To ${op === '+' ? 'add' : 'subtract'} fractions, find common denominator.<br>Multiply: ${n1}/${d1} × ${d2}/${d2} and ${n2}/${d2} × ${d1}/${d1}`;
+                    if (level === 2) return `Common denominator = ${d1 * d2}<br>First fraction: ${n1 * d2}/${d1 * d2}<br>Second fraction: ${n2 * d1}/${d1 * d2}`;
+                    if (level === 3) {
+                        const num = op === '+' ? n1 * d2 + n2 * d1 : n1 * d2 - n2 * d1;
+                        return `Final Answer: ${num}/${d1 * d2}`;
+                    }
+                }
+            }
+            
+            // Algebra
+            const algebraMatch = q.match(/(\d+)x([+\-])(\d+)=(\d+)/);
+            if (algebraMatch) {
+                const coef = parseInt(algebraMatch[1]);
+                const op = algebraMatch[2];
+                const const1 = parseInt(algebraMatch[3]);
+                const result = parseInt(algebraMatch[4]);
+                
+                if (level === 1) return `Isolate x by moving ${const1} to the other side.<br>Change ${op} to ${op === '+' ? '-' : '+'}`;
+                if (level === 2) return `${coef}x = ${result} ${op === '+' ? '-' : '+'} ${const1}<br>${coef}x = ${op === '+' ? result - const1 : result + const1}`;
+                if (level === 3) return `Divide both sides by ${coef}<br>x = ${op === '+' ? (result - const1) / coef : (result + const1) / coef}`;
+            }
+            
+            const addMatch = q.match(/(\d+)\+(\d+)/);
+            const subMatch = q.match(/(\d+)-(\d+)/);
+            const mulMatch = q.match(/(\d+)[x*](\d+)/);
+            const divMatch = q.match(/(\d+)[/÷](\d+)/);
+            
+            if (addMatch) {
+                const num1 = addMatch[1];
+                const num2 = addMatch[2];
+                
+                if (num1.length >= 2 && num2.length >= 2) {
+                    const ones1 = num1[num1.length - 1];
+                    const ones2 = num2[num2.length - 1];
+                    const tens1 = num1.substring(0, num1.length - 1);
+                    const tens2 = num2.substring(0, num2.length - 1);
+                    
+                    if (level === 1) return `Break it down:<br>${num1} = ${tens1} (tens) + ${ones1} (ones)<br>${num2} = ${tens2} (tens) + ${ones2} (ones)<br><br>Add ones: ${ones1} + ${ones2} = ?<br>Add tens: ${tens1} + ${tens2} = ?`;
+                    if (level === 2) return `Ones: ${ones1} + ${ones2} = ${parseInt(ones1) + parseInt(ones2)}<br>Tens: ${tens1} + ${tens2} = ${parseInt(tens1) + parseInt(tens2)}<br><br>Combine: ${parseInt(tens1) + parseInt(tens2)}${parseInt(ones1) + parseInt(ones2)}`;
+                    if (level === 3) return `Final Answer: ${parseInt(num1) + parseInt(num2)}`;
+                }
+                
+                const n1 = parseInt(num1);
+                const n2 = parseInt(num2);
+                if (level === 1) return `This is an addition problem. You need to add ${n1} and ${n2}.<br><br>Step 1: Write the numbers vertically<br>Step 2: Add from right to left`;
+                if (level === 2) return `Step 3: Start with ones place: ${n1 % 10} + ${n2 % 10} = ${(n1 % 10) + (n2 % 10)}<br>Step 4: Add tens place and carry if needed`;
+                if (level === 3) return `Step 5: Final Answer = ${n1 + n2}<br><br>Check: Does ${n1} + ${n2} = ${n1 + n2}? ✓`;
+            }
+            
+            if (subMatch) {
+                const num1 = subMatch[1];
+                const num2 = subMatch[2];
+                
+                if (num1.length >= 2 && num2.length >= 2) {
+                    const ones1 = num1[num1.length - 1];
+                    const ones2 = num2[num2.length - 1];
+                    const tens1 = num1.substring(0, num1.length - 1);
+                    const tens2 = num2.substring(0, num2.length - 1);
+                    
+                    if (level === 1) return `Break it down:<br>${num1} = ${tens1} (tens) + ${ones1} (ones)<br>${num2} = ${tens2} (tens) + ${ones2} (ones)<br><br>Subtract ones: ${ones1} - ${ones2} = ?<br>Subtract tens: ${tens1} - ${tens2} = ?`;
+                    if (level === 2) return `Ones: ${ones1} - ${ones2} = ${parseInt(ones1) - parseInt(ones2)}<br>Tens: ${tens1} - ${tens2} = ${parseInt(tens1) - parseInt(tens2)}<br><br>Combine: ${parseInt(tens1) - parseInt(tens2)}${parseInt(ones1) - parseInt(ones2)}`;
+                    if (level === 3) return `Final Answer: ${parseInt(num1) - parseInt(num2)}`;
+                }
+                
+                const n1 = parseInt(num1);
+                const n2 = parseInt(num2);
+                if (level === 1) return `This is a subtraction problem. You need to subtract ${n2} from ${n1}.<br><br>Step 1: Write ${n1} on top, ${n2} below<br>Step 2: Subtract from right to left`;
+                if (level === 2) return `Step 3: Ones place: ${n1 % 10} - ${n2 % 10} = ${(n1 % 10) - (n2 % 10)}<br>Step 4: Borrow from tens if needed`;
+                if (level === 3) return `Step 5: Final Answer = ${n1 - n2}<br><br>Check: Does ${n1} - ${n2} = ${n1 - n2}? ✓`;
+            }
+            
+            if (mulMatch) {
+                const num1 = parseInt(mulMatch[1]);
+                const num2 = parseInt(mulMatch[2]);
+                if (level === 1) return `Multiplication means repeated addition.<br><br>Step 1: ${num1} × ${num2} means add ${num1}, ${num2} times<br>Step 2: Break into smaller parts if needed`;
+                if (level === 2) return `Step 3: ${num1} + ${num1} + ${num1}... (${num2} times)<br>Step 4: Or use multiplication table: ${num1} × ${num2}`;
+                if (level === 3) return `Step 5: Final Answer = ${num1 * num2}<br><br>Check: ${num1} × ${num2} = ${num1 * num2} ✓`;
+            }
+            
+            if (divMatch) {
+                const num1 = parseInt(divMatch[1]);
+                const num2 = parseInt(divMatch[2]);
+                if (level === 1) return `Division means splitting into equal groups.<br><br>Step 1: How many times does ${num2} fit into ${num1}?<br>Step 2: Start dividing from left to right`;
+                if (level === 2) return `Step 3: Count groups: ${num2}, ${num2 * 2}, ${num2 * 3}...<br>Step 4: Stop when you reach or pass ${num1}`;
+                if (level === 3) return `Step 5: Final Answer = ${Math.floor(num1 / num2)}<br><br>Check: ${num2} × ${Math.floor(num1 / num2)} = ${num2 * Math.floor(num1 / num2)} ✓`;
+            }
+            
+            return 'I can help with: addition (+), subtraction (-), multiplication (×), division (÷), fractions (1/2 + 3/4), and algebra (2x + 5 = 15)!';
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function loadCompetition() {
+            window.location.href = 'competition-page.html';
+        }
+
+        function loadScoreboard() {
+            window.location.href = 'scoreboard.html';
+        }
+
+        function loadInvite() {
+            window.location.href = 'invite.html';
+        }
+
+        function loadLevel(page) {
+            const frame = document.getElementById('content-frame');
+            const chatBox = document.getElementById('chat-box');
+            frame.src = page;
+            frame.style.display = 'block';
+            chatBox.style.display = 'none';
+        }
+
+        function addMessage(text, type) {
+            const chatBox = document.getElementById('chat-box');
+            const msg = document.createElement('div');
+            msg.className = `message ${type}`;
+            msg.innerHTML = text;
+            chatBox.appendChild(msg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>

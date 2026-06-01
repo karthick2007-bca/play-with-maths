@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medium Level - Math Competition</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        h1 { color: #ffc107; text-align: center; margin-bottom: 10px; }
+        .score { text-align: center; font-size: 20px; color: #333; margin-bottom: 20px; }
+        .question-box { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; }
+        .question { font-size: 32px; font-weight: bold; color: #333; margin-bottom: 20px; }
+        .answer-input { width: 150px; padding: 12px; font-size: 24px; text-align: center; border: 2px solid #ffc107; border-radius: 8px; }
+        .submit-btn { padding: 12px 30px; background: #ffc107; color: #333; border: none; cursor: pointer; border-radius: 8px; font-size: 18px; margin-top: 15px; font-weight: bold; }
+        .submit-btn:hover { background: #e0a800; }
+        .feedback { font-size: 20px; margin-top: 15px; font-weight: bold; }
+        .correct { color: #28a745; }
+        .wrong { color: #dc3545; }
+        .timer { font-size: 18px; color: #dc3545; margin-top: 10px; font-weight: bold; }
+        .timer.warning { color: #ff0000; font-size: 22px; }
+        .back-btn { position: fixed; right: 20px; top: 20px; padding: 10px 20px; background: #f8f9fa; color: #333; border: 2px solid #ddd; cursor: pointer; border-radius: 5px; font-weight: bold; z-index: 1000; }
+        .back-btn:hover { background: #e9ecef; }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.history.back()">← Back</button>
+    <div class="container">
+        <h1>🟡 Medium Level</h1>
+        <div class="score">Score: <span id="score">0</span> / <span id="total">0</span></div>
+        <div class="timer" id="timer">Time Left: <span id="time-left">25</span>s</div>
+        
+        <div class="question-box">
+            <div class="question" id="question">Loading...</div>
+            <input type="number" id="answer" class="answer-input" placeholder="?" onkeypress="if(event.key==='Enter') checkAnswer()">
+            <br>
+            <button class="submit-btn" onclick="checkAnswer()">Submit Answer</button>
+            <div class="feedback" id="feedback"></div>
+        </div>
+    </div>
+
+    <script src="score-sync.js"></script>
+    <script>
+        let score = 0;
+        let total = 0;
+        let currentAnswer = 0;
+        let timeLeft = 25;
+        let questionTimer;
+
+        function generateQuestion() {
+            timeLeft = 25;
+            const num1 = Math.floor(Math.random() * 900) + 100;
+            const num2 = Math.floor(Math.random() * 900) + 100;
+            const operations = ['+', '-', '*'];
+            const operation = operations[Math.floor(Math.random() * operations.length)];
+            
+            let question, answer;
+            if (operation === '+') {
+                question = `${num1} + ${num2}`;
+                answer = num1 + num2;
+            } else if (operation === '-') {
+                if (num1 >= num2) {
+                    question = `${num1} - ${num2}`;
+                    answer = num1 - num2;
+                } else {
+                    question = `${num2} - ${num1}`;
+                    answer = num2 - num1;
+                }
+            } else {
+                question = `${num1} × ${num2}`;
+                answer = num1 * num2;
+            }
+            
+            document.getElementById('question').textContent = question + ' = ?';
+            currentAnswer = answer;
+            document.getElementById('answer').value = '';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('answer').focus();
+            
+            if (questionTimer) clearInterval(questionTimer);
+            questionTimer = setInterval(countdown, 1000);
+        }
+
+        function countdown() {
+            timeLeft--;
+            document.getElementById('time-left').textContent = timeLeft;
+            const timerEl = document.getElementById('timer');
+            
+            if (timeLeft <= 5) {
+                timerEl.classList.add('warning');
+            } else {
+                timerEl.classList.remove('warning');
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(questionTimer);
+                total++;
+                document.getElementById('feedback').textContent = `⏰ Time's up! Answer was ${currentAnswer}`;
+                document.getElementById('feedback').className = 'feedback wrong';
+                document.getElementById('total').textContent = total;
+                
+                setTimeout(() => {
+                    generateQuestion();
+                }, 1500);
+            }
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answer').value);
+            total++;
+            clearInterval(questionTimer);
+            
+            if (userAnswer === currentAnswer) {
+                score += 5;
+                document.getElementById('feedback').textContent = '✅ Correct! +5 points';
+                document.getElementById('feedback').className = 'feedback correct';
+            } else {
+                document.getElementById('feedback').textContent = `❌ Wrong! Answer is ${currentAnswer}`;
+                document.getElementById('feedback').className = 'feedback wrong';
+            }
+            
+            document.getElementById('score').textContent = score;
+            document.getElementById('total').textContent = total;
+            
+            saveScore('medium', userAnswer === currentAnswer ? 5 : 0);
+            
+            setTimeout(() => {
+                generateQuestion();
+            }, 1500);
+        }
+
+        // Start
+        loadScores().then(() => {
+            score = parseInt(localStorage.getItem('mediumScore') || 0);
+            document.getElementById('score').textContent = score;
+            generateQuestion();
+        });
+    </script>
+</body>
+</html>

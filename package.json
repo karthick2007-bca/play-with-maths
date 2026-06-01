@@ -1,0 +1,17 @@
+{
+  "name": "gaming-maths",
+  "version": "1.0.0",
+  "description": "A web-based math learning platform with AI-powered hints, competitions, and social features",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "bcryptjs": "^2.4.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "license": "MIT"
+}

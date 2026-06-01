@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competition</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        h1 { color: #333; text-align: center; margin-bottom: 30px; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header-container h1 { margin: 0; }
+        .score-box { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 2px solid #ddd; }
+        .score-box h3 { margin: 0 0 10px 0; font-size: 16px; color: #333; }
+        .score-item { font-size: 14px; margin: 5px 0; color: #666; }
+        .total-score { font-size: 16px; margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd; font-weight: bold; color: #333; }
+        .level-btn { width: 100%; padding: 15px; margin: 15px 0; border: none; cursor: pointer; border-radius: 8px; font-size: 18px; font-weight: bold; transition: 0.3s; }
+        .level-btn:hover { transform: scale(1.05); }
+        .easy { background: #28a745; color: white; }
+        .easy:hover { background: #218838; }
+        .medium { background: #ffc107; color: #333; }
+        .medium:hover { background: #e0a800; }
+        .hard { background: #dc3545; color: white; }
+        .hard:hover { background: #c82333; }
+        .back-btn { position: fixed; right: 20px; top: 20px; padding: 10px 20px; background: #f8f9fa; color: #333; border: 2px solid #ddd; cursor: pointer; border-radius: 5px; font-weight: bold; z-index: 1000; }
+        .back-btn:hover { background: #e9ecef; }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.history.back()">← Back</button>
+    <div class="container">
+        <div class="header-container">
+            <h1>🏆 Math Competition</h1>
+            <div class="score-box">
+                <h3>🎯 Total Score</h3>
+                <div class="total-score">🏆 <span id="total-score">0</span></div>
+            </div>
+        </div>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">Select your difficulty level:</p>
+        <button class="level-btn easy" onclick="window.location.href='easy-level.html'">🟢 Easy Level</button>
+        <button class="level-btn medium" onclick="window.location.href='medium-level.html'">🟡 Medium Level</button>
+        <button class="level-btn hard" onclick="window.location.href='hard-level.html'">🔴 Hard Level</button>
+    </div>
+
+    <script>
+        function updateScores() {
+            const easy = parseInt(localStorage.getItem('easyScore') || 0);
+            const medium = parseInt(localStorage.getItem('mediumScore') || 0);
+            const hard = parseInt(localStorage.getItem('hardScore') || 0);
+            
+            document.getElementById('total-score').textContent = easy + medium + hard;
+        }
+        updateScores();
+        setInterval(updateScores, 2000);
+    </script>
+</body>
+</html>
