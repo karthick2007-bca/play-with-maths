@@ -11,7 +11,7 @@ async function saveScore(level, points) {
     const medium = parseInt(localStorage.getItem('mediumScore') || 0);
     const hard = parseInt(localStorage.getItem('hardScore') || 0);
     
-    await fetch('http://localhost:3000/api/save-score', {
+    await fetch('https://math-gamer.vercel.app/api/save-score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, easyScore: easy, mediumScore: medium, hardScore: hard })
@@ -22,7 +22,7 @@ async function saveScore(level, points) {
 async function loadScores() {
     const username = localStorage.getItem('currentUser') || 'Guest';
     
-    const response = await fetch(`http://localhost:3000/api/get-score/${username}`);
+    const response = await fetch(`https://math-gamer.vercel.app/api/get-score/${username}`);
     const data = await response.json();
     
     localStorage.setItem('easyScore', data.easyScore || 0);

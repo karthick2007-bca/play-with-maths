@@ -1,10 +1,28 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
 app.use(express.json());
+
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://gamingmath:7604926171@cluster0.aruq9wd.mongodb.net/playwithmaths?appName=Cluster0')
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.log('MongoDB error:', err));
+
+// Schemas
+const Student = mongoose.model('Student', new mongoose.Schema({
+    username: { type: String, unique: true },
+    password: String
+}));
+
+const Score = mongoose.model('Score', new mongoose.Schema({
+    username: { type: String, unique: true },
+    easyScore: { type: Number, default: 0 },
+    mediumScore: { type: Number, default: 0 },
+    hardScore: { type: Number, default: 0 }
+}));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
@@ -15,24 +33,15 @@ app.use(express.static(path.join(__dirname, 'frontend')));
 // Google AI API Key
 const GOOGLE_AI_KEY = 'AlzaSyCIRqNclsNTnFv0WQz0PDLj0bti8WVJH4';
 
-// In-memory database (no MongoDB needed)
-const students = [
-    { name: 'Test Student', phone: '1234567890', password: '$2a$10$rZ5qH8qH8qH8qH8qH8qH8.N8N8N8N8N8N8N8N8N8N8N8N8N8N8N8' } // password: test123
-];
-
 // Signup route
 app.post('/api/signup', async (req, res) => {
     try {
-        const { name, phone, password } = req.body;
-        
-        const existingStudent = students.find(s => s.phone === phone);
-        if (existingStudent) {
-            return res.status(400).json({ message: 'Phone number already registered' });
-        }
+        const { username, password } = req.body;
+        const existing = await Student.findOne({ username });
+        if (existing) return res.status(400).json({ message: 'Username already exists' });
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        students.push({ name, phone, password: hashedPassword });
-        
+        await Student.create({ username, password: hashedPassword });
         res.status(201).json({ message: 'Signup successful' });
     } catch (error) {
         res.status(500).json({ message: 'Server error: ' + error.message });
@@ -42,38 +51,28 @@ app.post('/api/signup', async (req, res) => {
 // Login route
 app.post('/api/login', async (req, res) => {
     try {
-        const { phone, password } = req.body;
-        
-        const student = students.find(s => s.phone === phone);
-        if (!student) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
+        const { username, password } = req.body;
+        const student = await Student.findOne({ username });
+        if (!student) return res.status(400).json({ message: 'Username not found' });
 
         const isMatch = await bcrypt.compare(password, student.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
+        if (!isMatch) return res.status(400).json({ message: 'Incorrect password' });
 
-        res.json({ message: 'Login successful', name: student.name });
+        res.json({ message: 'Login successful', username: student.username });
     } catch (error) {
         res.status(500).json({ message: 'Server error: ' + error.message });
     }
 });
 
 // Save score endpoint
-app.post('/api/save-score', (req, res) => {
+app.post('/api/save-score', async (req, res) => {
     try {
         const { username, easyScore, mediumScore, hardScore } = req.body;
-        const scoresPath = path.join(__dirname, 'data', 'scores.json');
-        
-        let scores = {};
-        if (fs.existsSync(scoresPath)) {
-            scores = JSON.parse(fs.readFileSync(scoresPath, 'utf8'));
-        }
-        
-        scores[username] = { easyScore, mediumScore, hardScore };
-        fs.writeFileSync(scoresPath, JSON.stringify(scores, null, 2));
-        
+        await Score.findOneAndUpdate(
+            { username },
+            { easyScore, mediumScore, hardScore },
+            { upsert: true, new: true }
+        );
         res.json({ message: 'Score saved' });
     } catch (error) {
         res.status(500).json({ message: 'Error saving score' });
@@ -81,33 +80,22 @@ app.post('/api/save-score', (req, res) => {
 });
 
 // Get score endpoint
-app.get('/api/get-score/:username', (req, res) => {
+app.get('/api/get-score/:username', async (req, res) => {
     try {
-        const { username } = req.params;
-        const scoresPath = path.join(__dirname, 'data', 'scores.json');
-        
-        if (!fs.existsSync(scoresPath)) {
-            return res.json({ easyScore: 0, mediumScore: 0, hardScore: 0 });
-        }
-        
-        const scores = JSON.parse(fs.readFileSync(scoresPath, 'utf8'));
-        res.json(scores[username] || { easyScore: 0, mediumScore: 0, hardScore: 0 });
+        const score = await Score.findOne({ username: req.params.username });
+        res.json(score || { easyScore: 0, mediumScore: 0, hardScore: 0 });
     } catch (error) {
         res.status(500).json({ message: 'Error loading score' });
     }
 });
 
 // Get all scores endpoint
-app.get('/api/all-scores', (req, res) => {
+app.get('/api/all-scores', async (req, res) => {
     try {
-        const scoresPath = path.join(__dirname, 'data', 'scores.json');
-        
-        if (!fs.existsSync(scoresPath)) {
-            return res.json({});
-        }
-        
-        const scores = JSON.parse(fs.readFileSync(scoresPath, 'utf8'));
-        res.json(scores);
+        const scores = await Score.find();
+        const result = {};
+        scores.forEach(s => result[s.username] = { easyScore: s.easyScore, mediumScore: s.mediumScore, hardScore: s.hardScore });
+        res.json(result);
     } catch (error) {
         res.status(500).json({ message: 'Error loading scores' });
     }
