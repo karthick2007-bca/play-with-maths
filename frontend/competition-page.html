@@ -3,55 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Competition</title>
+    <title>MathWars - Choose Battle</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        h1 { color: #333; text-align: center; margin-bottom: 30px; }
-        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .header-container h1 { margin: 0; }
-        .score-box { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 2px solid #ddd; }
-        .score-box h3 { margin: 0 0 10px 0; font-size: 16px; color: #333; }
-        .score-item { font-size: 14px; margin: 5px 0; color: #666; }
-        .total-score { font-size: 16px; margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd; font-weight: bold; color: #333; }
-        .level-btn { width: 100%; padding: 15px; margin: 15px 0; border: none; cursor: pointer; border-radius: 8px; font-size: 18px; font-weight: bold; transition: 0.3s; }
-        .level-btn:hover { transform: scale(1.05); }
-        .easy { background: #28a745; color: white; }
-        .easy:hover { background: #218838; }
-        .medium { background: #ffc107; color: #333; }
-        .medium:hover { background: #e0a800; }
-        .hard { background: #dc3545; color: white; }
-        .hard:hover { background: #c82333; }
-        .back-btn { position: fixed; right: 20px; top: 20px; padding: 10px 20px; background: #f8f9fa; color: #333; border: 2px solid #ddd; cursor: pointer; border-radius: 5px; font-weight: bold; z-index: 1000; }
-        .back-btn:hover { background: #e9ecef; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0a1a; color: white; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px); background-size: 50px 50px; pointer-events: none; }
+        .back-btn { position: fixed; top: 20px; left: 20px; padding: 8px 18px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #888; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s; z-index: 10; }
+        .back-btn:hover { color: white; border-color: #6366f1; }
+        .xp-bar { position: fixed; top: 20px; right: 20px; background: rgba(10,10,26,0.9); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; padding: 10px 20px; text-align: center; }
+        .xp-val { font-size: 24px; font-weight: 800; color: #a855f7; }
+        .xp-label { font-size: 11px; color: #555; letter-spacing: 1px; }
+        .title { text-align: center; margin-bottom: 50px; }
+        .title h1 { font-size: 42px; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .title p { color: #555; letter-spacing: 3px; font-size: 13px; margin-top: 8px; }
+        .levels { display: flex; gap: 25px; flex-wrap: wrap; justify-content: center; padding: 20px; }
+        .level-card {
+            width: 220px; padding: 35px 25px; border-radius: 20px; text-align: center;
+            cursor: pointer; transition: all 0.4s; position: relative; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .level-card::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%); opacity: 0; transition: opacity 0.3s; }
+        .level-card:hover::after { opacity: 1; }
+        .level-card:hover { transform: translateY(-12px) scale(1.02); }
+        .level-card.easy { background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(16,185,129,0.05)); border-color: rgba(34,197,94,0.3); }
+        .level-card.easy:hover { box-shadow: 0 25px 60px rgba(34,197,94,0.25); border-color: #22c55e; }
+        .level-card.medium { background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(251,191,36,0.05)); border-color: rgba(245,158,11,0.3); }
+        .level-card.medium:hover { box-shadow: 0 25px 60px rgba(245,158,11,0.25); border-color: #f59e0b; }
+        .level-card.hard { background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(220,38,38,0.05)); border-color: rgba(239,68,68,0.3); }
+        .level-card.hard:hover { box-shadow: 0 25px 60px rgba(239,68,68,0.25); border-color: #ef4444; }
+        .level-icon { font-size: 52px; margin-bottom: 15px; }
+        .level-name { font-size: 20px; font-weight: 800; margin-bottom: 8px; letter-spacing: 1px; }
+        .level-xp { font-size: 13px; margin-bottom: 12px; opacity: 0.7; }
+        .level-desc { font-size: 12px; color: #666; line-height: 1.6; }
+        .level-card.easy .level-name { color: #22c55e; }
+        .level-card.medium .level-name { color: #f59e0b; }
+        .level-card.hard .level-name { color: #ef4444; }
+        .play-btn { margin-top: 18px; padding: 10px 25px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: 1px; transition: all 0.3s; }
+        .easy .play-btn { background: #22c55e; color: #0a0a1a; }
+        .medium .play-btn { background: #f59e0b; color: #0a0a1a; }
+        .hard .play-btn { background: #ef4444; color: white; }
+        .play-btn:hover { transform: scale(1.05); }
     </style>
 </head>
 <body>
-    <button class="back-btn" onclick="window.history.back()">← Back</button>
-    <div class="container">
-        <div class="header-container">
-            <h1>🏆 Math Competition</h1>
-            <div class="score-box">
-                <h3>🎯 Total Score</h3>
-                <div class="total-score">🏆 <span id="total-score">0</span></div>
-            </div>
-        </div>
-        <p style="text-align: center; color: #666; margin-bottom: 30px;">Select your difficulty level:</p>
-        <button class="level-btn easy" onclick="window.location.href='easy-level.html'">🟢 Easy Level</button>
-        <button class="level-btn medium" onclick="window.location.href='medium-level.html'">🟡 Medium Level</button>
-        <button class="level-btn hard" onclick="window.location.href='hard-level.html'">🔴 Hard Level</button>
+    <button class="back-btn" onclick="window.history.back()">← BACK</button>
+    <div class="xp-bar">
+        <div class="xp-val" id="total-xp">0</div>
+        <div class="xp-label">TOTAL XP</div>
     </div>
-
+    <div class="title">
+        <h1>⚔️ CHOOSE BATTLE</h1>
+        <p>SELECT YOUR DIFFICULTY LEVEL</p>
+    </div>
+    <div class="levels">
+        <div class="level-card easy" onclick="window.location.href='easy-level.html'">
+            <div class="level-icon">🟢</div>
+            <div class="level-name">EASY</div>
+            <div class="level-xp">+2 XP per correct answer</div>
+            <div class="level-desc">Basic addition & subtraction. Perfect for warming up your brain!</div>
+            <button class="play-btn">PLAY NOW</button>
+        </div>
+        <div class="level-card medium" onclick="window.location.href='medium-level.html'">
+            <div class="level-icon">🟡</div>
+            <div class="level-name">MEDIUM</div>
+            <div class="level-xp">+5 XP per correct answer</div>
+            <div class="level-desc">3-digit operations and multiplication. Test your skills!</div>
+            <button class="play-btn">PLAY NOW</button>
+        </div>
+        <div class="level-card hard" onclick="window.location.href='hard-level.html'">
+            <div class="level-icon">🔴</div>
+            <div class="level-name">HARD</div>
+            <div class="level-xp">+10 XP per correct answer</div>
+            <div class="level-desc">Large numbers, division & complex operations. Only for warriors!</div>
+            <button class="play-btn">PLAY NOW</button>
+        </div>
+    </div>
     <script>
-        function updateScores() {
-            const easy = parseInt(localStorage.getItem('easyScore') || 0);
-            const medium = parseInt(localStorage.getItem('mediumScore') || 0);
-            const hard = parseInt(localStorage.getItem('hardScore') || 0);
-            
-            document.getElementById('total-score').textContent = easy + medium + hard;
-        }
-        updateScores();
-        setInterval(updateScores, 2000);
+        const e = parseInt(localStorage.getItem('easyScore')||0);
+        const m = parseInt(localStorage.getItem('mediumScore')||0);
+        const h = parseInt(localStorage.getItem('hardScore')||0);
+        document.getElementById('total-xp').textContent = e+m+h;
     </script>
 </body>
 </html>

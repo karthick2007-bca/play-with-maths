@@ -3,146 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hard Level - Math Competition</title>
+    <title>MathWars - Hard Battle</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        h1 { color: #dc3545; text-align: center; margin-bottom: 10px; }
-        .score { text-align: center; font-size: 20px; color: #333; margin-bottom: 20px; }
-        .question-box { background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; }
-        .question { font-size: 32px; font-weight: bold; color: #333; margin-bottom: 20px; }
-        .answer-input { width: 150px; padding: 12px; font-size: 24px; text-align: center; border: 2px solid #dc3545; border-radius: 8px; }
-        .submit-btn { padding: 12px 30px; background: #dc3545; color: white; border: none; cursor: pointer; border-radius: 8px; font-size: 18px; margin-top: 15px; font-weight: bold; }
-        .submit-btn:hover { background: #c82333; }
-        .feedback { font-size: 20px; margin-top: 15px; font-weight: bold; }
-        .correct { color: #28a745; }
-        .wrong { color: #dc3545; }
-        .timer { font-size: 18px; color: #dc3545; margin-top: 10px; font-weight: bold; }
-        .timer.warning { color: #ff0000; font-size: 22px; }
-        .back-btn { position: fixed; right: 20px; top: 20px; padding: 10px 20px; background: #f8f9fa; color: #333; border: 2px solid #ddd; cursor: pointer; border-radius: 5px; font-weight: bold; z-index: 1000; }
-        .back-btn:hover { background: #e9ecef; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0a1a; color: white; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(239,68,68,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(239,68,68,0.03) 1px, transparent 1px); background-size: 50px 50px; pointer-events: none; }
+        .back-btn { position: fixed; top: 20px; left: 20px; padding: 8px 18px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #888; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s; z-index: 10; }
+        .back-btn:hover { color: white; border-color: #ef4444; }
+        .hud { position: fixed; top: 20px; right: 20px; display: flex; gap: 15px; z-index: 10; }
+        .hud-box { background: rgba(10,10,26,0.9); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 10px 18px; text-align: center; }
+        .hud-val { font-size: 22px; font-weight: 800; color: #ef4444; }
+        .hud-label { font-size: 10px; color: #555; letter-spacing: 1px; }
+        .arena { width: 520px; text-align: center; }
+        .level-badge { display: inline-block; padding: 6px 20px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); border-radius: 20px; color: #ef4444; font-size: 13px; font-weight: 700; letter-spacing: 2px; margin-bottom: 30px; }
+        .timer-ring { position: relative; width: 100px; height: 100px; margin: 0 auto 30px; }
+        .timer-ring svg { transform: rotate(-90deg); }
+        .timer-ring circle { fill: none; stroke-width: 6; }
+        .timer-ring .bg { stroke: rgba(239,68,68,0.1); }
+        .timer-ring .progress { stroke: #ef4444; stroke-dasharray: 283; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; stroke-linecap: round; }
+        .timer-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 28px; font-weight: 900; color: #ef4444; }
+        .question-card { background: rgba(15,15,35,0.9); border: 1px solid rgba(239,68,68,0.3); border-radius: 20px; padding: 40px; margin-bottom: 25px; box-shadow: 0 0 40px rgba(239,68,68,0.1); }
+        .question-text { font-size: 40px; font-weight: 900; color: white; margin-bottom: 10px; letter-spacing: 1px; }
+        .answer-input { width: 200px; padding: 16px; font-size: 26px; text-align: center; background: rgba(239,68,68,0.05); border: 2px solid rgba(239,68,68,0.4); border-radius: 12px; color: white; outline: none; transition: all 0.3s; margin-top: 20px; }
+        .answer-input:focus { border-color: #ef4444; box-shadow: 0 0 20px rgba(239,68,68,0.2); background: rgba(239,68,68,0.1); }
+        .submit-btn { display: block; width: 100%; padding: 16px; margin-top: 20px; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; border-radius: 12px; color: white; font-size: 18px; font-weight: 800; cursor: pointer; letter-spacing: 2px; transition: all 0.3s; position: relative; overflow: hidden; }
+        .submit-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: 0.5s; }
+        .submit-btn:hover::before { left: 100%; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(239,68,68,0.4); }
+        .feedback { font-size: 20px; font-weight: 800; margin-top: 15px; min-height: 30px; }
+        .correct { color: #22c55e; }
+        .wrong { color: #ef4444; }
+        .streak { font-size: 14px; color: #f59e0b; margin-top: 8px; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px)} 75%{transform:translateX(10px)} }
+        @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
+        .shake { animation: shake 0.3s; }
+        .pop { animation: pop 0.3s; }
+        @keyframes floatXP { 0%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-60px)} }
+        .xp-float { position: fixed; font-size: 24px; font-weight: 900; color: #ef4444; pointer-events: none; animation: floatXP 1s forwards; z-index: 999; }
     </style>
 </head>
 <body>
-    <button class="back-btn" onclick="window.history.back()">← Back</button>
-    <div class="container">
-        <h1>🔴 Hard Level</h1>
-        <div class="score">Score: <span id="score">0</span> / <span id="total">0</span></div>
-        <div class="timer" id="timer">Time Left: <span id="time-left">25</span>s</div>
-        
-        <div class="question-box">
-            <div class="question" id="question">Loading...</div>
-            <input type="number" id="answer" class="answer-input" placeholder="?" onkeypress="if(event.key==='Enter') checkAnswer()">
-            <br>
-            <button class="submit-btn" onclick="checkAnswer()">Submit Answer</button>
+    <button class="back-btn" onclick="window.history.back()">← BACK</button>
+    <div class="hud">
+        <div class="hud-box"><div class="hud-val" id="score">0</div><div class="hud-label">XP</div></div>
+        <div class="hud-box"><div class="hud-val" id="correct-count">0</div><div class="hud-label">CORRECT</div></div>
+        <div class="hud-box"><div class="hud-val" id="total-count">0</div><div class="hud-label">TOTAL</div></div>
+    </div>
+    <div class="arena">
+        <div class="level-badge">🔴 HARD BATTLE</div>
+        <div class="timer-ring">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle class="bg" cx="50" cy="50" r="45"/>
+                <circle class="progress" id="timer-circle" cx="50" cy="50" r="45"/>
+            </svg>
+            <div class="timer-text" id="timer-text">25</div>
+        </div>
+        <div class="question-card" id="question-card">
+            <div class="question-text" id="question">Loading...</div>
+            <input type="number" id="answer" class="answer-input" placeholder="?" onkeypress="if(event.key==='Enter') checkAnswer()" autofocus>
+            <button class="submit-btn" onclick="checkAnswer()">⚡ SUBMIT</button>
             <div class="feedback" id="feedback"></div>
+            <div class="streak" id="streak"></div>
         </div>
     </div>
 
     <script src="score-sync.js"></script>
     <script>
-        let score = 0;
-        let total = 0;
-        let currentAnswer = 0;
-        let timeLeft = 25;
-        let questionTimer;
+        let score=0,correct=0,total=0,currentAnswer=0,timeLeft=25,timer,streak=0;
+        const TOTAL_TIME=25;
 
         function generateQuestion() {
-            timeLeft = 25;
-            const num1 = Math.floor(Math.random() * 9000) + 1000;
-            const num2 = Math.floor(Math.random() * 900) + 100;
-            const operations = ['+', '-', '*', '/'];
-            const operation = operations[Math.floor(Math.random() * operations.length)];
-            
-            let question, answer;
-            if (operation === '+') {
-                question = `${num1} + ${num2}`;
-                answer = num1 + num2;
-            } else if (operation === '-') {
-                if (num1 >= num2) {
-                    question = `${num1} - ${num2}`;
-                    answer = num1 - num2;
-                } else {
-                    question = `${num2} - ${num1}`;
-                    answer = num2 - num1;
-                }
-            } else if (operation === '*') {
-                const smallNum1 = Math.floor(Math.random() * 90) + 10;
-                const smallNum2 = Math.floor(Math.random() * 90) + 10;
-                question = `${smallNum1} × ${smallNum2}`;
-                answer = smallNum1 * smallNum2;
-            } else {
-                const divisor = Math.floor(Math.random() * 90) + 10;
-                const quotient = Math.floor(Math.random() * 90) + 10;
-                const dividend = divisor * quotient;
-                question = `${dividend} ÷ ${divisor}`;
-                answer = quotient;
-            }
-            
-            document.getElementById('question').textContent = question + ' = ?';
-            currentAnswer = answer;
-            document.getElementById('answer').value = '';
-            document.getElementById('feedback').textContent = '';
+            timeLeft=TOTAL_TIME;
+            const ops=['+','-','×','÷'];
+            const op=ops[Math.floor(Math.random()*ops.length)];
+            let q;
+            if(op==='+'){const n1=Math.floor(Math.random()*9000)+1000,n2=Math.floor(Math.random()*900)+100;currentAnswer=n1+n2;q=`${n1} + ${n2}`;}
+            else if(op==='-'){const n1=Math.floor(Math.random()*9000)+1000,n2=Math.floor(Math.random()*900)+100;const a=Math.max(n1,n2),b=Math.min(n1,n2);currentAnswer=a-b;q=`${a} - ${b}`;}
+            else if(op==='×'){const n1=Math.floor(Math.random()*90)+10,n2=Math.floor(Math.random()*90)+10;currentAnswer=n1*n2;q=`${n1} × ${n2}`;}
+            else{const d=Math.floor(Math.random()*90)+10,qt=Math.floor(Math.random()*90)+10;currentAnswer=qt;q=`${d*qt} ÷ ${d}`;}
+            document.getElementById('question').textContent=q+' = ?';
+            document.getElementById('answer').value='';
+            document.getElementById('feedback').textContent='';
             document.getElementById('answer').focus();
-            
-            if (questionTimer) clearInterval(questionTimer);
-            questionTimer = setInterval(countdown, 1000);
+            if(timer)clearInterval(timer);
+            timer=setInterval(countdown,1000);
+            updateTimerRing();
+        }
+
+        function updateTimerRing() {
+            const c=document.getElementById('timer-circle'),t=document.getElementById('timer-text');
+            c.style.strokeDashoffset=283*(1-timeLeft/TOTAL_TIME);
+            t.textContent=timeLeft;
         }
 
         function countdown() {
-            timeLeft--;
-            document.getElementById('time-left').textContent = timeLeft;
-            const timerEl = document.getElementById('timer');
-            
-            if (timeLeft <= 5) {
-                timerEl.classList.add('warning');
-            } else {
-                timerEl.classList.remove('warning');
-            }
-            
-            if (timeLeft <= 0) {
-                clearInterval(questionTimer);
-                total++;
-                document.getElementById('feedback').textContent = `⏰ Time's up! Answer was ${currentAnswer}`;
-                document.getElementById('feedback').className = 'feedback wrong';
-                document.getElementById('total').textContent = total;
-                
-                setTimeout(() => {
-                    generateQuestion();
-                }, 1500);
-            }
+            timeLeft--;updateTimerRing();
+            if(timeLeft<=0){clearInterval(timer);total++;streak=0;document.getElementById('feedback').textContent=`⏰ Time's up! Answer: ${currentAnswer}`;document.getElementById('feedback').className='feedback wrong';document.getElementById('total-count').textContent=total;document.getElementById('streak').textContent='';setTimeout(generateQuestion,1500);}
         }
 
         function checkAnswer() {
-            const userAnswer = parseInt(document.getElementById('answer').value);
-            total++;
-            clearInterval(questionTimer);
-            
-            if (userAnswer === currentAnswer) {
-                score += 10;
-                document.getElementById('feedback').textContent = '✅ Correct! +10 points';
-                document.getElementById('feedback').className = 'feedback correct';
+            const val=parseInt(document.getElementById('answer').value);
+            if(isNaN(val))return;
+            clearInterval(timer);total++;
+            if(val===currentAnswer){
+                score+=10;correct++;streak++;
+                document.getElementById('feedback').textContent=streak>=3?`🔥 ${streak}x STREAK! +10 XP`:'✅ CORRECT! +10 XP';
+                document.getElementById('feedback').className='feedback correct';
+                document.getElementById('streak').textContent=streak>=3?`🔥 ${streak} in a row!`:'';
+                document.getElementById('question-card').classList.add('pop');
+                setTimeout(()=>document.getElementById('question-card').classList.remove('pop'),300);
+                showXPFloat('+10 XP');
+                saveScore('hard',10);
             } else {
-                document.getElementById('feedback').textContent = `❌ Wrong! Answer is ${currentAnswer}`;
-                document.getElementById('feedback').className = 'feedback wrong';
+                streak=0;document.getElementById('feedback').textContent=`❌ Wrong! Answer: ${currentAnswer}`;document.getElementById('feedback').className='feedback wrong';document.getElementById('streak').textContent='';
+                document.getElementById('question-card').classList.add('shake');
+                setTimeout(()=>document.getElementById('question-card').classList.remove('shake'),300);
             }
-            
-            document.getElementById('score').textContent = score;
-            document.getElementById('total').textContent = total;
-            
-            saveScore('hard', userAnswer === currentAnswer ? 10 : 0);
-            
-            setTimeout(() => {
-                generateQuestion();
-            }, 1500);
+            document.getElementById('score').textContent=score;document.getElementById('correct-count').textContent=correct;document.getElementById('total-count').textContent=total;
+            setTimeout(generateQuestion,1200);
         }
 
-        // Start
-        loadScores().then(() => {
-            score = parseInt(localStorage.getItem('hardScore') || 0);
-            document.getElementById('score').textContent = score;
-            generateQuestion();
-        });
+        function showXPFloat(text){const el=document.createElement('div');el.className='xp-float';el.textContent=text;el.style.left=(Math.random()*200+150)+'px';el.style.top='50%';document.body.appendChild(el);setTimeout(()=>el.remove(),1000);}
+
+        loadScores().then(()=>{score=parseInt(localStorage.getItem('hardScore')||0);document.getElementById('score').textContent=score;generateQuestion();});
     </script>
 </body>
 </html>

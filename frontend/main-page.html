@@ -3,375 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Learning - Main Page</title>
+    <title>MathWars - Command Center</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .sidebar { position: fixed; left: -250px; top: 0; width: 250px; height: 100%; background: white; box-shadow: 2px 0 10px rgba(0,0,0,0.3); transition: 0.3s; z-index: 1000; overflow-y: auto; }
-        .sidebar.open { left: 0; }
-        .toggle-btn { position: fixed; left: 10px; top: 10px; background: white; border: none; font-size: 20px; padding: 10px 15px; cursor: pointer; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 1001; }
-        .back-btn { position: fixed; right: 20px; top: 20px; padding: 10px 20px; background: #f8f9fa; color: #333; border: 2px solid #ddd; cursor: pointer; border-radius: 5px; font-weight: bold; z-index: 1001; }
-        .back-btn:hover { background: #e9ecef; }
-        .sidebar-content { padding: 20px; }
-        .competition { background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-        .competition h3 { margin: 0 0 10px 0; color: #856404; cursor: pointer; }
-        .competition h3:hover { color: #664d03; }
-        .scoreboard { background: #e7f3ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-        .scoreboard h3 { margin: 0 0 10px 0; color: #0056b3; cursor: pointer; }
-        .scoreboard h3:hover { color: #003d82; }
-        .invite { background: #d4edda; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-        .invite h3 { margin: 0 0 10px 0; color: #155724; cursor: pointer; }
-        .invite h3:hover { color: #0c3d1a; }
-        .ai-chat { width: 600px; padding: 30px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .ai-chat h2 { color: #333; text-align: center; margin-bottom: 20px; }
-        #chat-box { height: 400px; overflow-y: auto; border: 2px solid #ddd; padding: 15px; margin: 15px 0; background: #f9f9f9; border-radius: 10px; }
-        .message { margin: 10px 0; padding: 10px; border-radius: 8px; }
-        .user { background: #e3f2fd; text-align: right; }
-        .ai { background: #f1f8e9; white-space: pre-line; }
-        .answer-input { width: 60px; padding: 5px; border: 2px solid #007bff; border-radius: 5px; font-size: 16px; text-align: center; margin: 0 5px; }
-        .check-btn { padding: 8px 15px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 5px; font-size: 14px; margin-left: 10px; }
-        .check-btn:hover { background: #218838; }
-        .input-area { display: flex; gap: 10px; margin-top: 15px; }
-        input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
-        button { padding: 12px 20px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 8px; font-size: 16px; }
-        button:hover { background: #0056b3; }
-        .answer-check { margin: 15px 0; padding: 15px; background: #e7f3ff; border-radius: 8px; border: 2px solid #007bff; }
-        .answer-check input { width: 100px; padding: 8px; border: 2px solid #007bff; border-radius: 5px; font-size: 18px; text-align: center; }
-        .answer-check button { padding: 8px 20px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; font-size: 16px; margin-left: 10px; }
-        .answer-check button:hover { background: #0056b3; }
-        .hint-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border: 2px solid #6c757d; }
-        .hint-section h4 { margin: 0 0 10px 0; color: #495057; }
-        .hint-section.locked { opacity: 0.5; pointer-events: none; }
-        .timer-display { text-align: center; font-size: 20px; font-weight: bold; color: #dc3545; margin: 15px 0; padding: 10px; background: #fff3cd; border-radius: 8px; }
-        .content-frame { width: 100%; height: 500px; border: 2px solid #ddd; border-radius: 10px; display: none; margin-top: 20px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0a1a; color: white; min-height: 100vh; overflow-x: hidden; }
+
+        /* HUD Top Bar */
+        .hud-bar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(10,10,26,0.95);
+            border-bottom: 1px solid rgba(99,102,241,0.3);
+            padding: 12px 30px;
+            display: flex; align-items: center; justify-content: space-between;
+            backdrop-filter: blur(10px);
+        }
+        .hud-logo { font-size: 22px; font-weight: 900; background: linear-gradient(135deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hud-player { display: flex; align-items: center; gap: 12px; }
+        .hud-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, #6366f1, #a855f7); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
+        .hud-name { font-size: 14px; color: #a855f7; font-weight: 600; }
+        .hud-score-bar { display: flex; gap: 20px; }
+        .hud-stat { text-align: center; }
+        .hud-stat-val { font-size: 18px; font-weight: 800; color: #6366f1; }
+        .hud-stat-label { font-size: 10px; color: #555; letter-spacing: 1px; }
+        .logout-btn { padding: 6px 16px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.3s; }
+        .logout-btn:hover { background: rgba(239,68,68,0.3); }
+
+        /* Main Layout */
+        .main { padding-top: 80px; min-height: 100vh; }
+
+        /* Hero Section */
+        .hero {
+            text-align: center; padding: 60px 20px 40px;
+            background: radial-gradient(ellipse at center, rgba(99,102,241,0.1) 0%, transparent 70%);
+        }
+        .hero h2 { font-size: 48px; font-weight: 900; background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        .hero p { color: #666; font-size: 16px; letter-spacing: 2px; }
+
+        /* Mode Cards */
+        .modes { display: flex; gap: 20px; justify-content: center; padding: 20px 40px 40px; flex-wrap: wrap; }
+        .mode-card {
+            width: 280px; padding: 30px; border-radius: 16px; cursor: pointer;
+            position: relative; overflow: hidden; transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .mode-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .mode-card:hover { transform: translateY(-8px); }
+        .mode-card:hover::before { opacity: 1; }
+        .mode-card.ai { background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.15)); border-color: rgba(99,102,241,0.4); }
+        .mode-card.ai:hover { box-shadow: 0 20px 60px rgba(99,102,241,0.3); border-color: #6366f1; }
+        .mode-card.compete { background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(239,68,68,0.15)); border-color: rgba(245,158,11,0.4); }
+        .mode-card.compete:hover { box-shadow: 0 20px 60px rgba(245,158,11,0.3); border-color: #f59e0b; }
+        .mode-card.board { background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15)); border-color: rgba(34,197,94,0.4); }
+        .mode-card.board:hover { box-shadow: 0 20px 60px rgba(34,197,94,0.3); border-color: #22c55e; }
+        .mode-card.invite { background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(168,85,247,0.15)); border-color: rgba(236,72,153,0.4); }
+        .mode-card.invite:hover { box-shadow: 0 20px 60px rgba(236,72,153,0.3); border-color: #ec4899; }
+        .mode-icon { font-size: 48px; margin-bottom: 15px; }
+        .mode-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+        .mode-desc { font-size: 13px; color: #888; line-height: 1.5; }
+        .mode-badge { position: absolute; top: 15px; right: 15px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+        .badge-hot { background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        .badge-new { background: rgba(34,197,94,0.2); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+
+        /* AI Chat Panel */
+        .ai-panel {
+            display: none; position: fixed; top: 0; right: 0; bottom: 0;
+            width: 420px; background: rgba(10,10,26,0.98);
+            border-left: 1px solid rgba(99,102,241,0.3);
+            z-index: 200; flex-direction: column;
+            backdrop-filter: blur(20px);
+        }
+        .ai-panel.open { display: flex; }
+        .ai-header { padding: 20px; border-bottom: 1px solid rgba(99,102,241,0.2); display: flex; align-items: center; justify-content: space-between; }
+        .ai-header h3 { font-size: 18px; background: linear-gradient(135deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .close-btn { background: none; border: none; color: #666; font-size: 22px; cursor: pointer; }
+        .close-btn:hover { color: white; }
+        .chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-box::-webkit-scrollbar { width: 4px; }
+        .chat-box::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 2px; }
+        .msg { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; max-width: 90%; }
+        .msg.user { background: linear-gradient(135deg, #6366f1, #a855f7); align-self: flex-end; }
+        .msg.ai { background: rgba(255,255,255,0.05); border: 1px solid rgba(99,102,241,0.2); align-self: flex-start; }
+        .chat-input { padding: 15px; border-top: 1px solid rgba(99,102,241,0.2); display: flex; gap: 10px; }
+        .chat-input input { flex: 1; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; color: white; font-size: 14px; outline: none; }
+        .chat-input input:focus { border-color: #6366f1; }
+        .chat-input input::placeholder { color: #555; }
+        .send-btn { padding: 12px 18px; background: linear-gradient(135deg, #6366f1, #a855f7); border: none; border-radius: 10px; color: white; cursor: pointer; font-size: 18px; transition: all 0.3s; }
+        .send-btn:hover { transform: scale(1.05); }
+        .hint-btn { width: 100%; padding: 10px; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; border-radius: 8px; cursor: pointer; font-size: 13px; margin: 0 15px 10px; width: calc(100% - 30px); transition: all 0.3s; }
+        .hint-btn:hover { background: rgba(245,158,11,0.25); }
+        .timer-bar { margin: 0 15px 5px; padding: 8px 15px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; text-align: center; font-size: 13px; color: #ef4444; font-weight: 700; }
+
+        /* Answer check */
+        .answer-check { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; padding: 12px; margin-top: 8px; }
+        .answer-check input { padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(99,102,241,0.4); border-radius: 6px; color: white; width: 100px; text-align: center; font-size: 16px; outline: none; }
+        .answer-check button { padding: 8px 16px; background: #6366f1; border: none; border-radius: 6px; color: white; cursor: pointer; margin-left: 8px; font-size: 13px; }
+        .hint-section { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 8px; padding: 10px; margin-top: 6px; font-size: 13px; }
+
+        /* Overlay */
+        .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 150; }
+        .overlay.show { display: block; }
+
+        /* Pulse animation */
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .pulse { animation: pulse 2s infinite; }
+
+        /* Grid bg */
+        body::before {
+            content: '';
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
-    <button class="toggle-btn" onclick="toggleSidebar()">&gt;&gt;&gt;</button>
-    <button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-content">
-            <div class="competition">
-                <h3 onclick="loadCompetition()">🏆 Competition ▼</h3>
+    <!-- HUD Bar -->
+    <div class="hud-bar">
+        <div class="hud-logo">⚔️ MATHWARS</div>
+        <div class="hud-score-bar">
+            <div class="hud-stat">
+                <div class="hud-stat-val" id="hud-easy">0</div>
+                <div class="hud-stat-label">EASY</div>
             </div>
-            <div class="scoreboard">
-                <h3 onclick="loadScoreboard()">📊 Scoreboard ▼</h3>
+            <div class="hud-stat">
+                <div class="hud-stat-val" id="hud-medium">0</div>
+                <div class="hud-stat-label">MEDIUM</div>
             </div>
-            <div class="invite">
-                <h3 onclick="loadInvite()">👥 Invite Friends ▼</h3>
+            <div class="hud-stat">
+                <div class="hud-stat-val" id="hud-hard">0</div>
+                <div class="hud-stat-label">HARD</div>
+            </div>
+            <div class="hud-stat">
+                <div class="hud-stat-val" id="hud-total" style="color:#a855f7">0</div>
+                <div class="hud-stat-label">TOTAL XP</div>
+            </div>
+        </div>
+        <div class="hud-player">
+            <div class="hud-avatar" id="hud-avatar">?</div>
+            <div class="hud-name" id="hud-name">PLAYER</div>
+            <button class="logout-btn" onclick="logout()">LOGOUT</button>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+        <div class="hero">
+            <h2>COMMAND CENTER</h2>
+            <p>CHOOSE YOUR BATTLE MODE</p>
+        </div>
+        <div class="modes">
+            <div class="mode-card ai" onclick="openAI()">
+                <div class="mode-badge badge-hot">HOT</div>
+                <div class="mode-icon">🤖</div>
+                <div class="mode-title">AI MATH HELPER</div>
+                <div class="mode-desc">Ask any math question. Get hints, step-by-step solutions powered by AI.</div>
+            </div>
+            <div class="mode-card compete" onclick="window.location.href='competition-page.html'">
+                <div class="mode-badge badge-hot">LIVE</div>
+                <div class="mode-icon">⚔️</div>
+                <div class="mode-title">COMPETITION</div>
+                <div class="mode-desc">Battle through Easy, Medium & Hard levels. Earn XP and climb the ranks.</div>
+            </div>
+            <div class="mode-card board" onclick="window.location.href='scoreboard.html'">
+                <div class="mode-badge badge-new">NEW</div>
+                <div class="mode-icon">🏆</div>
+                <div class="mode-title">LEADERBOARD</div>
+                <div class="mode-desc">See where you rank among all warriors. Top 3 get special badges.</div>
+            </div>
+            <div class="mode-card invite" onclick="window.location.href='invite.html'">
+                <div class="mode-icon">👥</div>
+                <div class="mode-title">INVITE FRIENDS</div>
+                <div class="mode-desc">Challenge your friends to a math duel. Share your invite link.</div>
             </div>
         </div>
     </div>
-    <div class="ai-chat">
-        <h2>🤖 AI Math Helper</h2>
-        <iframe id="content-frame" class="content-frame"></iframe>
-        <div id="chat-box"></div>
-        <div class="input-area">
-            <input type="text" id="question" placeholder="Ask a math question..." onkeypress="if(event.key==='Enter') askAI()">
-            <button onclick="askAI()">Send</button>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="closeAI()"></div>
+
+    <!-- AI Panel -->
+    <div class="ai-panel" id="ai-panel">
+        <div class="ai-header">
+            <h3>🤖 AI MATH HELPER</h3>
+            <button class="close-btn" onclick="closeAI()">✕</button>
         </div>
-        <div class="input-area">
-            <button onclick="showNextHint()" style="background: #ffc107;">💡 Show Next Hint</button>
+        <div class="chat-box" id="chat-box">
+            <div class="msg ai">👋 Welcome, warrior! Ask me any math question and I'll guide you to victory!</div>
         </div>
-        <div class="timer-display" id="timer-display">⏱️ Time: 30s</div>
+        <div class="timer-bar" id="timer-bar">⏱️ Ready</div>
+        <button class="hint-btn" onclick="showNextHint()">💡 UNLOCK NEXT HINT</button>
+        <div class="chat-input">
+            <input type="text" id="question" placeholder="Type your math question..." onkeypress="if(event.key==='Enter') askAI()">
+            <button class="send-btn" onclick="askAI()">➤</button>
+        </div>
     </div>
 
     <script>
-        let lastQuestion = '';
-        let currentHint = 1;
-        let hintTimer = null;
-        let countdownTimer = null;
-        let timeLeft = 30;
-        let questionCount = 0;
+        let currentHint = 1, hintTimer = null, countdownTimer = null, timeLeft = 30, questionCount = 0;
+
+        // Init
+        const user = localStorage.getItem('currentUser') || 'PLAYER';
+        if (!localStorage.getItem('currentUser')) window.location.href = 'index.html';
+        document.getElementById('hud-name').textContent = user.toUpperCase();
+        document.getElementById('hud-avatar').textContent = user[0].toUpperCase();
+        updateHUD();
+
+        function updateHUD() {
+            const e = parseInt(localStorage.getItem('easyScore') || 0);
+            const m = parseInt(localStorage.getItem('mediumScore') || 0);
+            const h = parseInt(localStorage.getItem('hardScore') || 0);
+            document.getElementById('hud-easy').textContent = e;
+            document.getElementById('hud-medium').textContent = m;
+            document.getElementById('hud-hard').textContent = h;
+            document.getElementById('hud-total').textContent = e + m + h;
+        }
+
+        function logout() { localStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
+        function openAI() { document.getElementById('ai-panel').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
+        function closeAI() { document.getElementById('ai-panel').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
 
         async function askAI() {
-            const question = document.getElementById('question').value;
-            if (!question) return;
-
-            lastQuestion = question;
-            currentHint = 1;
-            timeLeft = 30;
-            questionCount++;
-            
+            const q = document.getElementById('question').value.trim();
+            if (!q) return;
+            currentHint = 1; timeLeft = 30; questionCount++;
             if (hintTimer) clearTimeout(hintTimer);
             if (countdownTimer) clearInterval(countdownTimer);
-            
-            addMessage(question, 'user');
+            addMsg(q, 'user');
             document.getElementById('question').value = '';
-            
-            showAnswerCheck(question, questionCount);
-            showAllHints(question, questionCount);
-            startHintTimer();
+            showAnswerCheck(q, questionCount);
+            showAllHints(q, questionCount);
             startCountdown();
+            startHintTimer();
         }
 
         function startCountdown() {
-            const timerEl = document.getElementById('timer-display');
-            timerEl.textContent = '⏱️ Time: ' + timeLeft + 's';
-            
+            const bar = document.getElementById('timer-bar');
             if (countdownTimer) clearInterval(countdownTimer);
             countdownTimer = setInterval(() => {
                 timeLeft--;
-                timerEl.textContent = '⏱️ Time: ' + timeLeft + 's';
-                
-                if (timeLeft <= 0) {
-                    clearInterval(countdownTimer);
-                    timeLeft = 30;
-                    timerEl.textContent = '⏱️ Time: 30s';
-                }
+                bar.textContent = `⏱️ Time Left: ${timeLeft}s`;
+                if (timeLeft <= 0) { clearInterval(countdownTimer); bar.textContent = '⏱️ Time Up!'; timeLeft = 30; }
             }, 1000);
         }
 
         function startHintTimer() {
             if (hintTimer) clearTimeout(hintTimer);
-            hintTimer = setTimeout(() => {
-                if (currentHint < 3) {
-                    currentHint++;
-                    unlockHint(currentHint);
-                    timeLeft = 30;
-                    startHintTimer();
-                }
-            }, 30000);
+            hintTimer = setTimeout(() => { if (currentHint < 3) { currentHint++; unlockHint(currentHint); timeLeft = 30; startHintTimer(); } }, 30000);
         }
 
-        function showAnswerCheck(question, qNum) {
-            const answer = getCorrectAnswer(question);
-            if (!answer) return;
-            
+        function showAnswerCheck(q, n) {
+            const ans = getAnswer(q);
+            if (!ans && ans !== 0) return;
             setTimeout(() => {
-                const msg = document.createElement('div');
-                msg.className = 'message ai';
-                msg.innerHTML = `<div class="answer-check">📝 Try to solve it: <input type="number" id="final-answer-${qNum}" placeholder="Your answer"> <button onclick="checkFinalAnswer(${answer}, ${qNum})">Check</button></div>`;
-                document.getElementById('chat-box').appendChild(msg);
-                document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+                const d = document.createElement('div');
+                d.className = 'msg ai';
+                d.innerHTML = `📝 Try to solve it:<div class="answer-check"><input type="number" id="fa-${n}" placeholder="Answer"><button onclick="checkAns(${ans},${n})">CHECK ✓</button></div>`;
+                document.getElementById('chat-box').appendChild(d);
+                scrollChat();
             }, 100);
         }
 
-        function showAllHints(question, qNum) {
+        function showAllHints(q, n) {
             setTimeout(() => {
-                const msg = document.createElement('div');
-                msg.className = 'message ai';
-                msg.innerHTML = '<div class="hint-section" id="hint-' + qNum + '-1"><h4>💡 Hint 1</h4>' + generateHint(question, 1) + '</div>' +
-                                '<div class="hint-section locked" id="hint-' + qNum + '-2" style="display: none;"><h4>💡 Hint 2</h4>' + generateHint(question, 2) + '</div>' +
-                                '<div class="hint-section locked" id="hint-' + qNum + '-3" style="display: none;"><h4>💡 Hint 3</h4>' + generateHint(question, 3) + '</div>';
-                document.getElementById('chat-box').appendChild(msg);
-                document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+                const d = document.createElement('div');
+                d.className = 'msg ai';
+                d.innerHTML = `<div class="hint-section" id="h-${n}-1">💡 <b>Hint 1:</b> ${genHint(q,1)}</div>
+                               <div class="hint-section" id="h-${n}-2" style="display:none">💡 <b>Hint 2:</b> ${genHint(q,2)}</div>
+                               <div class="hint-section" id="h-${n}-3" style="display:none">💡 <b>Hint 3:</b> ${genHint(q,3)}</div>`;
+                document.getElementById('chat-box').appendChild(d);
+                scrollChat();
             }, 200);
         }
 
-        function unlockHint(hintNum) {
-            const hint = document.getElementById('hint-' + questionCount + '-' + hintNum);
-            if (hint) {
-                hint.classList.remove('locked');
-                hint.style.display = 'block';
-                hint.style.opacity = '1';
-                hint.style.pointerEvents = 'auto';
-            }
+        function unlockHint(n) {
+            const h = document.getElementById(`h-${questionCount}-${n}`);
+            if (h) h.style.display = 'block';
         }
 
         function showNextHint() {
-            if (currentHint < 3) {
-                currentHint++;
-                unlockHint(currentHint);
-                timeLeft = 30;
-                if (countdownTimer) clearInterval(countdownTimer);
-                startCountdown();
-                if (hintTimer) clearTimeout(hintTimer);
-                startHintTimer();
-            }
+            if (currentHint < 3) { currentHint++; unlockHint(currentHint); timeLeft = 30; if (countdownTimer) clearInterval(countdownTimer); startCountdown(); }
         }
 
-        function checkFinalAnswer(correct, qNum) {
-            const userAnswer = parseInt(document.getElementById('final-answer-' + qNum).value);
+        function checkAns(correct, n) {
+            const val = parseInt(document.getElementById(`fa-${n}`).value);
             if (countdownTimer) clearInterval(countdownTimer);
             if (hintTimer) clearTimeout(hintTimer);
-            if (userAnswer === correct) {
-                addMessage('✅ Perfect! Your answer is correct!', 'ai');
-            } else {
-                addMessage('❌ Not quite right. Keep trying or use hints!', 'ai');
-            }
+            addMsg(val === correct ? '🎉 CORRECT! You are a Math Warrior!' : `❌ Wrong! The answer was ${correct}. Keep fighting!`, 'ai');
         }
 
-        function getCorrectAnswer(question) {
-            const q = question.toLowerCase().replace(/\s+/g, '');
-            
-            // Fractions: 1/2 + 3/4
-            const fracMatch = q.match(/(\d+)\/(\d+)([+\-*\/])(\d+)\/(\d+)/);
-            if (fracMatch) {
-                const n1 = parseInt(fracMatch[1]), d1 = parseInt(fracMatch[2]);
-                const op = fracMatch[3];
-                const n2 = parseInt(fracMatch[4]), d2 = parseInt(fracMatch[5]);
-                
-                if (op === '+') {
-                    const num = n1 * d2 + n2 * d1;
-                    const den = d1 * d2;
-                    return `${num}/${den}`;
-                } else if (op === '-') {
-                    const num = n1 * d2 - n2 * d1;
-                    const den = d1 * d2;
-                    return `${num}/${den}`;
-                }
+        function addMsg(text, type) {
+            const d = document.createElement('div');
+            d.className = `msg ${type}`;
+            d.innerHTML = text;
+            document.getElementById('chat-box').appendChild(d);
+            scrollChat();
+        }
+
+        function scrollChat() { const c = document.getElementById('chat-box'); c.scrollTop = c.scrollHeight; }
+
+        function getAnswer(q) {
+            const s = q.toLowerCase().replace(/\s+/g, '');
+            const frac = s.match(/(\d+)\/(\d+)([+\-])(\d+)\/(\d+)/);
+            if (frac) {
+                const [,n1,d1,op,n2,d2] = frac.map((v,i) => i>0&&i!==3?parseInt(v):v);
+                return op==='+' ? `${n1*d2+n2*d1}/${d1*d2}` : `${n1*d2-n2*d1}/${d1*d2}`;
             }
-            
-            // Algebra: 2x + 5 = 15 (solve for x)
-            const algebraMatch = q.match(/(\d+)x([+\-])(\d+)=(\d+)/);
-            if (algebraMatch) {
-                const coef = parseInt(algebraMatch[1]);
-                const op = algebraMatch[2];
-                const const1 = parseInt(algebraMatch[3]);
-                const result = parseInt(algebraMatch[4]);
-                
-                if (op === '+') {
-                    return (result - const1) / coef;
-                } else {
-                    return (result + const1) / coef;
-                }
-            }
-            
-            const addMatch = q.match(/(\d+)\+(\d+)/);
-            const subMatch = q.match(/(\d+)-(\d+)/);
-            const mulMatch = q.match(/(\d+)[x*](\d+)/);
-            const divMatch = q.match(/(\d+)[/÷](\d+)/);
-            
-            if (addMatch) return parseInt(addMatch[1]) + parseInt(addMatch[2]);
-            if (subMatch) return parseInt(subMatch[1]) - parseInt(subMatch[2]);
-            if (mulMatch) return parseInt(mulMatch[1]) * parseInt(mulMatch[2]);
-            if (divMatch) return Math.floor(parseInt(divMatch[1]) / parseInt(divMatch[2]));
+            const alg = s.match(/(\d+)x([+\-])(\d+)=(\d+)/);
+            if (alg) { const c=parseInt(alg[1]),op=alg[2],k=parseInt(alg[3]),r=parseInt(alg[4]); return op==='+'?(r-k)/c:(r+k)/c; }
+            const a=s.match(/(\d+)\+(\d+)/), sb=s.match(/(\d+)-(\d+)/), m=s.match(/(\d+)[x*](\d+)/), d=s.match(/(\d+)[/÷](\d+)/);
+            if (a) return +a[1]+ +a[2];
+            if (sb) return +sb[1]- +sb[2];
+            if (m) return +m[1]* +m[2];
+            if (d) return Math.floor(+d[1]/ +d[2]);
             return null;
         }
 
-        function generateHint(question, level) {
-            const q = question.toLowerCase().replace(/\s+/g, '');
-            
-            // Fractions
-            const fracMatch = q.match(/(\d+)\/(\d+)([+\-*\/])(\d+)\/(\d+)/);
-            if (fracMatch) {
-                const n1 = parseInt(fracMatch[1]), d1 = parseInt(fracMatch[2]);
-                const op = fracMatch[3];
-                const n2 = parseInt(fracMatch[4]), d2 = parseInt(fracMatch[5]);
-                
-                if (op === '+' || op === '-') {
-                    if (level === 1) return `To ${op === '+' ? 'add' : 'subtract'} fractions, find common denominator.<br>Multiply: ${n1}/${d1} × ${d2}/${d2} and ${n2}/${d2} × ${d1}/${d1}`;
-                    if (level === 2) return `Common denominator = ${d1 * d2}<br>First fraction: ${n1 * d2}/${d1 * d2}<br>Second fraction: ${n2 * d1}/${d1 * d2}`;
-                    if (level === 3) {
-                        const num = op === '+' ? n1 * d2 + n2 * d1 : n1 * d2 - n2 * d1;
-                        return `Final Answer: ${num}/${d1 * d2}`;
-                    }
-                }
-            }
-            
-            // Algebra
-            const algebraMatch = q.match(/(\d+)x([+\-])(\d+)=(\d+)/);
-            if (algebraMatch) {
-                const coef = parseInt(algebraMatch[1]);
-                const op = algebraMatch[2];
-                const const1 = parseInt(algebraMatch[3]);
-                const result = parseInt(algebraMatch[4]);
-                
-                if (level === 1) return `Isolate x by moving ${const1} to the other side.<br>Change ${op} to ${op === '+' ? '-' : '+'}`;
-                if (level === 2) return `${coef}x = ${result} ${op === '+' ? '-' : '+'} ${const1}<br>${coef}x = ${op === '+' ? result - const1 : result + const1}`;
-                if (level === 3) return `Divide both sides by ${coef}<br>x = ${op === '+' ? (result - const1) / coef : (result + const1) / coef}`;
-            }
-            
-            const addMatch = q.match(/(\d+)\+(\d+)/);
-            const subMatch = q.match(/(\d+)-(\d+)/);
-            const mulMatch = q.match(/(\d+)[x*](\d+)/);
-            const divMatch = q.match(/(\d+)[/÷](\d+)/);
-            
-            if (addMatch) {
-                const num1 = addMatch[1];
-                const num2 = addMatch[2];
-                
-                if (num1.length >= 2 && num2.length >= 2) {
-                    const ones1 = num1[num1.length - 1];
-                    const ones2 = num2[num2.length - 1];
-                    const tens1 = num1.substring(0, num1.length - 1);
-                    const tens2 = num2.substring(0, num2.length - 1);
-                    
-                    if (level === 1) return `Break it down:<br>${num1} = ${tens1} (tens) + ${ones1} (ones)<br>${num2} = ${tens2} (tens) + ${ones2} (ones)<br><br>Add ones: ${ones1} + ${ones2} = ?<br>Add tens: ${tens1} + ${tens2} = ?`;
-                    if (level === 2) return `Ones: ${ones1} + ${ones2} = ${parseInt(ones1) + parseInt(ones2)}<br>Tens: ${tens1} + ${tens2} = ${parseInt(tens1) + parseInt(tens2)}<br><br>Combine: ${parseInt(tens1) + parseInt(tens2)}${parseInt(ones1) + parseInt(ones2)}`;
-                    if (level === 3) return `Final Answer: ${parseInt(num1) + parseInt(num2)}`;
-                }
-                
-                const n1 = parseInt(num1);
-                const n2 = parseInt(num2);
-                if (level === 1) return `This is an addition problem. You need to add ${n1} and ${n2}.<br><br>Step 1: Write the numbers vertically<br>Step 2: Add from right to left`;
-                if (level === 2) return `Step 3: Start with ones place: ${n1 % 10} + ${n2 % 10} = ${(n1 % 10) + (n2 % 10)}<br>Step 4: Add tens place and carry if needed`;
-                if (level === 3) return `Step 5: Final Answer = ${n1 + n2}<br><br>Check: Does ${n1} + ${n2} = ${n1 + n2}? ✓`;
-            }
-            
-            if (subMatch) {
-                const num1 = subMatch[1];
-                const num2 = subMatch[2];
-                
-                if (num1.length >= 2 && num2.length >= 2) {
-                    const ones1 = num1[num1.length - 1];
-                    const ones2 = num2[num2.length - 1];
-                    const tens1 = num1.substring(0, num1.length - 1);
-                    const tens2 = num2.substring(0, num2.length - 1);
-                    
-                    if (level === 1) return `Break it down:<br>${num1} = ${tens1} (tens) + ${ones1} (ones)<br>${num2} = ${tens2} (tens) + ${ones2} (ones)<br><br>Subtract ones: ${ones1} - ${ones2} = ?<br>Subtract tens: ${tens1} - ${tens2} = ?`;
-                    if (level === 2) return `Ones: ${ones1} - ${ones2} = ${parseInt(ones1) - parseInt(ones2)}<br>Tens: ${tens1} - ${tens2} = ${parseInt(tens1) - parseInt(tens2)}<br><br>Combine: ${parseInt(tens1) - parseInt(tens2)}${parseInt(ones1) - parseInt(ones2)}`;
-                    if (level === 3) return `Final Answer: ${parseInt(num1) - parseInt(num2)}`;
-                }
-                
-                const n1 = parseInt(num1);
-                const n2 = parseInt(num2);
-                if (level === 1) return `This is a subtraction problem. You need to subtract ${n2} from ${n1}.<br><br>Step 1: Write ${n1} on top, ${n2} below<br>Step 2: Subtract from right to left`;
-                if (level === 2) return `Step 3: Ones place: ${n1 % 10} - ${n2 % 10} = ${(n1 % 10) - (n2 % 10)}<br>Step 4: Borrow from tens if needed`;
-                if (level === 3) return `Step 5: Final Answer = ${n1 - n2}<br><br>Check: Does ${n1} - ${n2} = ${n1 - n2}? ✓`;
-            }
-            
-            if (mulMatch) {
-                const num1 = parseInt(mulMatch[1]);
-                const num2 = parseInt(mulMatch[2]);
-                if (level === 1) return `Multiplication means repeated addition.<br><br>Step 1: ${num1} × ${num2} means add ${num1}, ${num2} times<br>Step 2: Break into smaller parts if needed`;
-                if (level === 2) return `Step 3: ${num1} + ${num1} + ${num1}... (${num2} times)<br>Step 4: Or use multiplication table: ${num1} × ${num2}`;
-                if (level === 3) return `Step 5: Final Answer = ${num1 * num2}<br><br>Check: ${num1} × ${num2} = ${num1 * num2} ✓`;
-            }
-            
-            if (divMatch) {
-                const num1 = parseInt(divMatch[1]);
-                const num2 = parseInt(divMatch[2]);
-                if (level === 1) return `Division means splitting into equal groups.<br><br>Step 1: How many times does ${num2} fit into ${num1}?<br>Step 2: Start dividing from left to right`;
-                if (level === 2) return `Step 3: Count groups: ${num2}, ${num2 * 2}, ${num2 * 3}...<br>Step 4: Stop when you reach or pass ${num1}`;
-                if (level === 3) return `Step 5: Final Answer = ${Math.floor(num1 / num2)}<br><br>Check: ${num2} × ${Math.floor(num1 / num2)} = ${num2 * Math.floor(num1 / num2)} ✓`;
-            }
-            
-            return 'I can help with: addition (+), subtraction (-), multiplication (×), division (÷), fractions (1/2 + 3/4), and algebra (2x + 5 = 15)!';
+        function genHint(q, l) {
+            const s = q.toLowerCase().replace(/\s+/g,'');
+            const a=s.match(/(\d+)\+(\d+)/), sb=s.match(/(\d+)-(\d+)/), m=s.match(/(\d+)[x*](\d+)/), d=s.match(/(\d+)[/÷](\d+)/);
+            if (a) { const n1=+a[1],n2=+a[2]; if(l===1) return `Add ${n1} and ${n2} together`; if(l===2) return `${n1} + ${n2} = ?`; return `Answer = ${n1+n2}`; }
+            if (sb) { const n1=+sb[1],n2=+sb[2]; if(l===1) return `Subtract ${n2} from ${n1}`; if(l===2) return `${n1} - ${n2} = ?`; return `Answer = ${n1-n2}`; }
+            if (m) { const n1=+m[1],n2=+m[2]; if(l===1) return `Multiply ${n1} × ${n2}`; if(l===2) return `${n1} added ${n2} times`; return `Answer = ${n1*n2}`; }
+            if (d) { const n1=+d[1],n2=+d[2]; if(l===1) return `Divide ${n1} by ${n2}`; if(l===2) return `How many times does ${n2} fit in ${n1}?`; return `Answer = ${Math.floor(n1/n2)}`; }
+            return 'Try breaking the problem into smaller steps!';
         }
 
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
-
-        function loadCompetition() {
-            window.location.href = 'competition-page.html';
-        }
-
-        function loadScoreboard() {
-            window.location.href = 'scoreboard.html';
-        }
-
-        function loadInvite() {
-            window.location.href = 'invite.html';
-        }
-
-        function loadLevel(page) {
-            const frame = document.getElementById('content-frame');
-            const chatBox = document.getElementById('chat-box');
-            frame.src = page;
-            frame.style.display = 'block';
-            chatBox.style.display = 'none';
-        }
-
-        function addMessage(text, type) {
-            const chatBox = document.getElementById('chat-box');
-            const msg = document.createElement('div');
-            msg.className = `message ${type}`;
-            msg.innerHTML = text;
-            chatBox.appendChild(msg);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+        setInterval(updateHUD, 2000);
     </script>
 </body>
 </html>
