@@ -1,8 +1,7 @@
 # ⚔️ MathWars - Enter the Arena
 
 A real-time multiplayer math battle game where players
-compete by solving math problems faster than opponents! 
-most usefull for School student
+compete by solving math problems faster than opponents!
 
 ## 🌐 Live Demo
 🔗 [math-gamer.vercel.app](https://math-gamer.vercel.app)
@@ -13,22 +12,31 @@ most usefull for School student
 - 👤 User authentication (Sign Up / Login)
 - 🏆 Competitive scoring system
 - 📱 Responsive design
+- 🔒 Secure backend API
 
 ## 🛠️ Tech Stack
 | Layer | Technology |
 |-------|-----------|
 | Frontend | HTML, CSS, JavaScript |
+| Backend | Node.js, Express.js |
+| Database | MongoDB |
 | Deployment | Vercel |
-| Auth | Login / Signup system |
+
 
 
 ## ⚙️ How to Run Locally
-```bash
-# Clone the repo
-git clone https://github.com/karthick2007-bca/math-gamer
 
+### Backend
+```bash
+cd backend
+npm install
+node index.js
+```
+
+### Frontend
+```bash
 # Open index.html in browser
-# OR use live server extension
+# OR use Live Server (VS Code)
 ```
 
 ## 🎮 How to Play
@@ -36,6 +44,13 @@ git clone https://github.com/karthick2007-bca/math-gamer
 2. Enter Arena click பண்ணுங்க
 3. Math problems solve பண்ணுங்க
 4. Faster = Higher score! 🏆
+
+## 🌐 API Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/signup | User registration |
+| POST | /api/login | User login |
+| GET | /api/scores | Get leaderboard |
 
 ## 👨‍💻 Developer
 **Karthick** — [GitHub](https://github.com/karthick2007-bca)
